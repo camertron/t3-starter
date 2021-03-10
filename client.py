@@ -88,6 +88,22 @@ class Client(object):
     self._potentially_raise_error(response)
     return response
 
+  def create_game(self, challenger: str, opponent: str) -> ClientResponse:
+    response = self._client.post("/games", body={"challenger": challenger, "opponent": opponent})
+    self._potentially_raise_error(response)
+    return response
+
+  def get_game(self, game_id: int) -> ClientResponse:
+    response = self._client.get(f"/games/{game_id}")
+    self._potentially_raise_error(response)
+    return response
+
+  def move(self, game_id: int, username: str, row: int, col: int) -> ClientResponse:
+    params = {"username": username, "row": row, "col": col}
+    response = self._client.post(f"/games/{game_id}/moves", body=params)
+    self._potentially_raise_error(response)
+    return response
+
   def _potentially_raise_error(self, response: ClientResponse) -> None:
     if "error" in response.body:
       error_message = response.body["error"]
