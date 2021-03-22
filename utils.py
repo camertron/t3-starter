@@ -8,13 +8,13 @@ JsonResponse = Tuple[Dict[str, Any], int]
 
 
 def as_json(func: Callable[..., JsonResponse]) -> Callable[..., Response]:
-  def check_json(**kwargs) -> Response:
+  def check_json(*args, **kwargs) -> Response:
     if not request.is_json:
       body = {"error": "Content-Type must be application/json"}
       code = 404
     else:
       try:
-        body, code = func(**kwargs)
+        body, code = func(*args, **kwargs)
       except Exception as e:
         body = {"error": f"{type(e).__name__}: {e.args[0]}"}
         code = 500
