@@ -13,7 +13,9 @@ class HttpError(Exception):
 
 
 class ClientError(HttpError):
-  pass
+  def __init__(self, message: str, response: ClientResponse) -> None:
+    super().__init__(message)
+    self.response = response
 
 
 class ServerError(HttpError):
@@ -88,6 +90,11 @@ class Client(object):
     self._potentially_raise_error(response)
     return response
 
+  def get_player(self, username: str) -> ClientResponse:
+    response = self._client.get(f"/players/{username}")
+    self._potentially_raise_error(response)
+    return response
+
   def create_game(self, challenger: str, opponent: str) -> ClientResponse:
     response = self._client.post("/games", body={"challenger": challenger, "opponent": opponent})
     self._potentially_raise_error(response)
@@ -111,10 +118,10 @@ class Client(object):
       error_message = "An unexpected error occurred"
 
     if response.status_code == 400:
-      raise BadRequestError(error_message)
+      raise BadRequestError(error_message, response)
     elif response.status_code == 404:
-      raise NotFoundError(error_message)
+      raise NotFoundError(error_message, response)
     elif response.status_code // 100 == 4:
-      raise ClientError(error_message)
+      raise ClientError(error_message, response)
     elif response.status_code // 100 == 5:
-      raise ServerError(error_message)
+      raise ServerError(error_message, response)

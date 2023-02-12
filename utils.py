@@ -2,7 +2,8 @@ from __future__ import annotations
 from typing import Any, Callable, Dict, Tuple
 
 from flask import jsonify, make_response, request, Response
-import traceback
+
+import json
 
 
 JsonResponse = Tuple[Dict[str, Any], int]
@@ -17,8 +18,7 @@ def as_json(func: Callable[..., JsonResponse]) -> Callable[..., Response]:
       try:
         body, code = func(*args, **kwargs)
       except Exception as e:
-        traceback_str = ''.join(traceback.format_tb(e.__traceback__))
-        body = {"error": f"{type(e).__name__}: {e.args[0]}\n{traceback_str}"}
+        body = {"error": f"{type(e).__name__}: {e.args[0]}"}
         code = 500
 
     return make_response(jsonify(body), code)
